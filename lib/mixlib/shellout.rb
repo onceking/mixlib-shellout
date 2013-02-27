@@ -27,6 +27,7 @@ module Mixlib
     READ_WAIT_TIME = 0.01
     READ_SIZE = 4096
     DEFAULT_READ_TIMEOUT = 600
+    DEFAULT_MAX_SUBPROCESS_FDS = 1024
     DEFAULT_ENVIRONMENT = {'LC_ALL' => 'C'}
 
     if RUBY_PLATFORM =~ /mswin|mingw32|windows/
@@ -98,6 +99,11 @@ module Mixlib
     attr_reader :status
 
     attr_reader :stdin_pipe, :stdout_pipe, :stderr_pipe, :process_status_pipe
+
+    # if close_subprocess_fds is true, close fds up to max_subprocess_fds after
+    # forking and before doing the exec
+    attr_accessor :close_subprocess_fds
+    attr_accessor :max_subprocess_fds
 
     # === Arguments:
     # Takes a single command, or a list of command fragments. These are used
@@ -181,6 +187,14 @@ module Mixlib
 
     def timeout
       @timeout || DEFAULT_READ_TIMEOUT
+    end
+
+    def close_subprocess_fds
+      @close_subprocess_fds || false
+    end
+
+    def max_subprocess_fds
+      @max_subprocess_fds || DEFAULT_MAX_SUBPROCESS_FDS
     end
 
     # Creates a String showing the output of the command, including a banner

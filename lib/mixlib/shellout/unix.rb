@@ -171,6 +171,20 @@ module Mixlib
 
         STDOUT.sync = STDERR.sync = true
         STDIN.sync = true if input
+
+        ok_fds = [ STDIN, STDOUT, STDERR, process_status_pipe.last ].map { |io| io.fileno }
+        0.upto(max_subprocess_fds).each do |fd|
+          next if ok_fds.include?(fd)
+          begin
+            io = IO.new(fd)
+            io.close
+          rescue Errno::EBADF
+            # already closed
+          rescue ArgumentError => e
+            # MRI 1.9.3 magical pipes
+            raise unless e.message =~ /The given fd is not accessible because RubyVM reserves it/
+          end
+        end
       end
 
       def configure_parent_process_file_descriptors
