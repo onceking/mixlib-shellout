@@ -447,19 +447,38 @@ describe Mixlib::ShellOut do
       end
     end
 
-    context "with a live stream" do
+    context 'with output stream' do
       let(:stream) { StringIO.new }
       let(:ruby_code) { '$stdout.puts "hello"; $stderr.puts "world"' }
-      let(:options) { { :live_stream => stream } }
 
-      it "should copy the child's stdout to the live stream" do
-        shell_cmd.run_command
-        stream.string.should include("hello#{LINE_ENDING}")
+      context "with a live stream" do
+        let(:options) { { :live_stream => stream } }
+
+        it "should copy the child's stdout to the live stream" do
+          shell_cmd.run_command
+          stream.string.should include("hello#{LINE_ENDING}")
+        end
+
+        it "should copy the child's stderr to the live stream" do
+          shell_cmd.run_command
+          stream.string.should include("world#{LINE_ENDING}")
+        end
       end
 
-      it "should copy the child's stderr to the live stream" do
-        shell_cmd.run_command
-        stream.string.should include("world#{LINE_ENDING}")
+      context 'with a stdout stream' do
+        it "should copy the child's stdout to the stream" do
+          shell_cmd.stdout = stream
+          shell_cmd.run_command
+          stream.string.should eql("hello#{LINE_ENDING}")
+        end
+      end
+      
+      context 'with a stderr stream' do
+        it "should copy the child's stderr to the stream" do
+          shell_cmd.stderr = stream
+          shell_cmd.run_command
+          stream.string.should eql("world#{LINE_ENDING}")
+        end
       end
     end
 

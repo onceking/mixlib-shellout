@@ -90,11 +90,11 @@ module Mixlib
     # The amount of time the subcommand took to execute
     attr_reader :execution_time
 
-    # Data written to stdout by the subprocess
-    attr_reader :stdout
-
-    # Data written to stderr by the subprocess
-    attr_reader :stderr
+    # Data written to stdout/stderr by the subprocess
+    # default to strings containing the stdout/stderr content.
+    # Similar to live_stream, can be changed to an IO object (e.g. 
+    # tmpfile, $stdout, etc)
+    attr_accessor :stdout, :stderr
 
     # A Process::Status (or ducktype) object collected when the subprocess is
     # reaped.
